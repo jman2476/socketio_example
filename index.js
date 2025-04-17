@@ -9,7 +9,9 @@ import { SocketAddress } from 'node:net'
 const app = express()
 const port = 3100
 const server = createServer(app)
-const io = new Server(server)
+const io = new Server(server, {
+    connectionStateRecovery: {}
+})
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
