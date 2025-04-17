@@ -4,11 +4,14 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { Server  } from 'socket.io'
 import { strictEqual } from 'node:assert'
+import { SocketAddress } from 'node:net'
 
 const app = express()
 const port = 3100
 const server = createServer(app)
-const io = new Server(server)
+const io = new Server(server, {
+    connectionStateRecovery: {}
+})
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -22,9 +25,12 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected')
     })
+
     socket.on('chat message', (msg) => {
-        console.log('message: ', msg)
+        io.emit('chat message', msg)
     })
+
+    
 })
 
 server.listen(port, () => {
