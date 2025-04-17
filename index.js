@@ -3,8 +3,22 @@ import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { Server  } from 'socket.io'
-import { strictEqual } from 'node:assert'
-import { SocketAddress } from 'node:net'
+
+import sqlite3 from 'sqlite3'
+import { open } from 'sqlite'
+
+const db = await open({
+    filename: 'chat.db',
+    driver: sqlite3.Database
+})
+
+await db.exec(`
+    CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_offset TEXT UNIQUE,
+        content TEXT
+    );
+    `)
 
 const app = express()
 const port = 3100
@@ -25,9 +39,15 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected')
     })
+    socket.on('chat message', async (msg) => {
+        let result
+        try {
+            result = await db.run('INSERT INTO messages (content) VALUES (?)', msg)
+        } catch (e) {
+            
+        }
 
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg)
+        io.emit('chat message', msg, result.lastID)
     })
 
     
