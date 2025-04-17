@@ -3,5 +3,13 @@
     "version": "0.0.1",
     "description": "example socket.io chat",
     "type": "module",
-    "dependencies": {}
+    "dependencies": {
+        "express": "^5.1.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.9"
+    },
+    "scripts": {
+        "start": "nodemon index.js"
+    }
 }
