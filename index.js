@@ -35,19 +35,24 @@ app.get('/', (req, res)=> {
 })
 
 io.on('connection', async (socket) => {
-    console.log('a user connected')
+    console.log('a user connected', socket.id)
     socket.on('disconnect', () => {
         console.log('user disconnected')
     })
-    socket.on('chat message', async (msg) => {
+    socket.on('chat message', async (msg, clientOffset, callback) => {
         let result
         try {
-            result = await db.run('INSERT INTO messages (content) VALUES (?)', msg)
+            result = await db.run('INSERT INTO messages (content, client_offset) VALUES (?, ?)', msg, clientOffset)
         } catch (e) {
-            
+            if (e.errno === 19){
+                callback()
+            } else {}
+
+            return
         }
 
         io.emit('chat message', msg, result.lastID)
+        callback()
     })
 
     if (!socket.recovered) {
