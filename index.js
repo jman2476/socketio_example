@@ -23,8 +23,9 @@ await db.exec(`
     `)
 
 if (cluster.isPrimary){
+    // gives the available number of CPU threads to use
     const numCPUs = availableParallelism()
-    for (let i = 0; i < numCPUs; i++){
+    for (let i = 0; i < 4; i++){
         cluster.fork({
             PORT: 3100 + i
         })
